@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/change_city"
+        android:title="Change city"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/plan_a_trip"
+        android:title="Plan a trip"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/my_trips"
+        android:title="My trips"
+        app:showAsAction="never"/>
+
+</menu>
