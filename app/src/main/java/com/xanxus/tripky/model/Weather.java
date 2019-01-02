@@ -1,26 +1,11 @@
 package com.xanxus.tripky.model;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 public class Weather {
 
-    private String color;
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-
-
     private String city;
-    private String country;
     private Date date;
     private String temperature;
     private String description;
@@ -41,13 +26,6 @@ public class Weather {
         this.city = city;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
 
     public String getTemperature() {
         return temperature;
@@ -110,7 +88,6 @@ public class Weather {
         SimpleDateFormat f = new SimpleDateFormat("HH:mm");
         this.sunset = f.format(new Date(sunset));
     }
-
 
     public String getIcon() {
         return icon;

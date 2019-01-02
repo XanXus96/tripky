@@ -4,18 +4,8 @@ import java.io.Serializable;
 
 public class Prediction implements Serializable {
 
-    String address;
-
-    public String getMcc() {
-        return mcc;
-    }
-
-    public void setMcc(String mcc) {
-        this.mcc = mcc;
-    }
-
-    String mcc;
-    double lon, lat;
+    private String mcc, address;
+    private double lon, lat;
 
     public Prediction(String address, double lon, double lat) {
         this.address = address;
@@ -47,8 +37,11 @@ public class Prediction implements Serializable {
         this.lat = lat;
     }
 
-    @Override
-    public String toString() {
-        return lat + "," + lon + "; ";
+    public String getMcc() {
+        return mcc;
+    }
+
+    public void setMcc(String mcc) {
+        this.mcc = mcc;
     }
 }
