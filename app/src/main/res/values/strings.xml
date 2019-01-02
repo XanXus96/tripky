@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Tripky</string>
 
-    <string name="tomtom_key">lzp2XnGA2eIAE7FeOb54tAEqmCOIGUyA</string>
-    <string name="dark_sky_key">6ca96fe05fb3166edd511a6df228b7d2</string>
+    <string name="tomtom_key"></string>
+    <string name="dark_sky_key"></string>
 
     <string name="wind">Wind : </string>
     <string name="pressure">Pressure : </string>
