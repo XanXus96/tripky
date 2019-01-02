@@ -12,19 +12,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/widgetCity"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:text="City name, AB"
-            android:visibility="gone"/>
+
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -44,12 +32,13 @@
                 tools:text="0 °C" />
 
             <ImageView
+                android:contentDescription="weatherIcon"
                 android:id="@+id/widgetIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
-                android:layout_alignParentRight="true"
-                android:paddingRight="20sp"
+                android:layout_alignParentEnd="true"
+                android:paddingEnd="20sp"
                 android:paddingTop="10sp"/>
 
         </RelativeLayout>

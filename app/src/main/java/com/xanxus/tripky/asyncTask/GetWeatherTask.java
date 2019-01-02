@@ -2,9 +2,6 @@ package com.xanxus.tripky.asyncTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.model.Weather;
@@ -21,9 +18,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> {
 
@@ -44,9 +38,7 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
     public GetWeatherTask(Context context, String excludes) {
 
         DARK_SKY_API_KEY = context.getString(R.string.dark_sky_key);
-
         this.excludes = excludes;
-
     }
 
     @Override
@@ -82,13 +74,17 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                         if (Math.abs(d.get("time").toString().compareTo(strings[2])) <= 1800) break;
                     }
                     todayWeather.setDescription(d.getString("summary"));
-                    todayWeather.setDate(d.getLong("time")*1000);
+                    todayWeather.setDate(Long.parseLong(strings[2]) * 1000);
                     todayWeather.setIcon(d.getString("icon"));
                     todayWeather.setTemperature(String.valueOf(d.getLong("temperature")));
                     todayWeather.setHumidity(String.valueOf(d.getDouble("humidity")*100));
                     todayWeather.setPressure(String.valueOf(d.getDouble("pressure")));
                     todayWeather.setWind(String.valueOf(d.getDouble("windSpeed")));
-                    todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability")*100) + "% " + d.getString("precipType"));
+                    if (d.has("precipType")) {
+                        todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% " + d.getString("precipType"));
+                    } else {
+                        todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% ");
+                    }
                     listWeather.add(todayWeather);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -109,7 +105,11 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                         todayWeather.setHumidity(String.valueOf(d.getDouble("humidity")*100));
                         todayWeather.setPressure(String.valueOf(d.getDouble("pressure")));
                         todayWeather.setWind(String.valueOf(d.getDouble("windSpeed")));
-                        todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability")*100) + "% " + d.getString("precipType"));
+                        if (d.has("precipType")) {
+                            todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% " + d.getString("precipType"));
+                        } else {
+                            todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% ");
+                        }
                         todayWeather.setSunrise(d.getLong("sunriseTime")*1000);
                         todayWeather.setSunset(d.getLong("sunsetTime")*1000);
                         listWeather.add(todayWeather);
@@ -130,10 +130,5 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
 
     @Override
     protected void onPostExecute(ArrayList<Weather> temp) {
-
     }
-
-
-
-
 }

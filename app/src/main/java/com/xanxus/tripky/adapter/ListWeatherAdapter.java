@@ -2,11 +2,7 @@ package com.xanxus.tripky.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xanxus.tripky.R;
+import com.xanxus.tripky.helper.AssetsHelper;
 import com.xanxus.tripky.model.Weather;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -33,16 +29,17 @@ public class ListWeatherAdapter extends RecyclerView.Adapter<ListWeatherAdapter.
 
         public MyViewHolder(View view) {
             super(view);
-            tempTextView = (TextView) view.findViewById(R.id.widgetTemperature);
-            descTextView = (TextView) view.findViewById(R.id.widgetDescription);
-            humiTextView = (TextView) view.findViewById(R.id.widgetHumidity);
-            presTextView = (TextView) view.findViewById(R.id.widgetPressure);
-            windTextView = (TextView) view.findViewById(R.id.widgetWind);
-            dateTextView = (TextView) view.findViewById(R.id.widgetDate);
-            precipTextView = (TextView) view.findViewById(R.id.widgetPrecip);
-            sRiseTextView = (TextView) view.findViewById(R.id.widgetSunrise);
-            sSetTextView = (TextView) view.findViewById(R.id.widgetSunset);
-            iconImageView = (ImageView) view.findViewById(R.id.widgetIcon);
+            //retrieving the views of each list's item
+            tempTextView = view.findViewById(R.id.widgetTemperature);
+            descTextView = view.findViewById(R.id.widgetDescription);
+            humiTextView = view.findViewById(R.id.widgetHumidity);
+            presTextView = view.findViewById(R.id.widgetPressure);
+            windTextView = view.findViewById(R.id.widgetWind);
+            dateTextView = view.findViewById(R.id.widgetDate);
+            precipTextView = view.findViewById(R.id.widgetPrecip);
+            sRiseTextView = view.findViewById(R.id.widgetSunrise);
+            sSetTextView = view.findViewById(R.id.widgetSunset);
+            iconImageView = view.findViewById(R.id.widgetIcon);
         }
     }
 
@@ -63,6 +60,7 @@ public class ListWeatherAdapter extends RecyclerView.Adapter<ListWeatherAdapter.
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         Weather weather = weatherList.get(position);
+        //setting the views content from the weather list
         holder.tempTextView.setText(weather.getTemperature() + " \u2103");
         holder.descTextView.setText(weather.getDescription().toUpperCase());
         holder.humiTextView.setText(context.getResources().getString(R.string.humidity) + " " + weather.getHumidity() + " %");
@@ -74,7 +72,7 @@ public class ListWeatherAdapter extends RecyclerView.Adapter<ListWeatherAdapter.
         SimpleDateFormat f = new SimpleDateFormat("EEE d MMM yyyy");
         holder.dateTextView.setText(f.format(weather.getDate()));
         try {
-            holder.iconImageView.setImageBitmap(getBitmapFromAssets(weather.getIcon()));
+            holder.iconImageView.setImageBitmap(new AssetsHelper(context).getBitmapFromAssets(weather.getIcon()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,16 +82,4 @@ public class ListWeatherAdapter extends RecyclerView.Adapter<ListWeatherAdapter.
     public int getItemCount() {
         return weatherList.size();
     }
-
-    public Bitmap getBitmapFromAssets(String fileName) throws IOException {
-        AssetManager assetManager = context.getAssets();
-
-        InputStream istr = assetManager.open(fileName+".png");
-        Bitmap bitmap = BitmapFactory.decodeStream(istr);
-        istr.close();
-
-        return bitmap;
-    }
-
-
 }

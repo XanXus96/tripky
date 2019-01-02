@@ -33,7 +33,8 @@ public class PredictionsAdapter extends ArrayAdapter<Prediction> implements Filt
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View itemView = inflater.inflate(resource, parent, false);
-        TextView address=(TextView)itemView.findViewById(R.id.predAddress);
+        TextView address = itemView.findViewById(R.id.predAddress);
+        //show thw prediction address on each list's item
         address.setText(predictions.get(position).getAddress());
 
         return itemView;

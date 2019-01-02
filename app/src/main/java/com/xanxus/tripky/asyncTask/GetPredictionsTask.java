@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.xanxus.tripky.model.Prediction;
 import com.xanxus.tripky.R;
+import com.xanxus.tripky.model.Prediction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,11 +35,9 @@ public class GetPredictionsTask extends AsyncTask<String, Void, ArrayList<Predic
     private static String TOMTOM_API_KEY;
 
     private ArrayList<Prediction> predictions = new ArrayList<Prediction>();
-    private Context context;
 
     public GetPredictionsTask(Context context) {
         super();
-        this.context = context;
         TOMTOM_API_KEY = context.getString(R.string.tomtom_key);
     }
 

@@ -1,25 +1,22 @@
 package com.xanxus.tripky.activity;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.tomtom.online.sdk.search.OnlineSearchApi;
 import com.tomtom.online.sdk.search.SearchApi;
 import com.tomtom.online.sdk.search.api.SearchError;
@@ -30,63 +27,84 @@ import com.tomtom.online.sdk.search.data.reversegeocoder.ReverseGeocoderSearchRe
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.adapter.ListWeatherAdapter;
 import com.xanxus.tripky.asyncTask.GetWeatherTask;
+import com.xanxus.tripky.helper.AssetsHelper;
 import com.xanxus.tripky.model.Prediction;
 import com.xanxus.tripky.model.Weather;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Prediction pred;
-    private ArrayList<Weather> listWeather;
-
-    private TextView tempTextView, cityTextView, descTextView, humiTextView, presTextView, windTextView, precipTextView, sRiseTextView,
+    private TextView tempTextView, descTextView, humiTextView, presTextView, windTextView, precipTextView, sRiseTextView,
             sSetTextView;
     private ImageView iconImageView;
+
     private RecyclerView recyclerView;
     private ListWeatherAdapter weatherAdapter;
+
+    private ArrayList<Weather> listWeather;
     private Weather today;
 
+    public Location location;
+    private Prediction pred;
+
+    //this activity cannot be reached if you didn't grant the permissions first although some functions in need of
+    //permission require this annotation
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //retrieving the views
+        tempTextView = findViewById(R.id.widgetTemperature);
+        descTextView = findViewById(R.id.widgetDescription);
+        humiTextView = findViewById(R.id.widgetHumidity);
+        presTextView = findViewById(R.id.widgetPressure);
+        windTextView = findViewById(R.id.widgetWind);
+        iconImageView = findViewById(R.id.widgetIcon);
+        precipTextView = findViewById(R.id.widgetPrecip);
+        sRiseTextView = findViewById(R.id.widgetSunrise);
+        sSetTextView = findViewById(R.id.widgetSunset);
 
-        @SuppressLint("MissingPermission")
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
+        //if we have a location coming from another activity (change city)
         if (getIntent().getExtras() != null) {
             pred = (Prediction) getIntent().getExtras().getSerializable("pred");
             setTitle(pred.getMcc());
         }else{
-            pred = new Prediction("Tripky", location.getLongitude(),location.getLatitude());
+            //if we get the current location
+            if (location != null) {
+                pred = new Prediction("Tripky", location.getLongitude(), location.getLatitude());
 
-            SearchApi searchApi = OnlineSearchApi.create(this);
-            searchApi.reverseGeocoding(new ReverseGeocoderSearchQueryBuilder(location.getLatitude(), location.getLongitude()).build(),
-                    new RevGeoSearchResultListener() {
-                        @Override
-                        public void onSearchResult(ReverseGeocoderSearchResponse reverseGeocoderSearchResponse) {
+                SearchApi searchApi = OnlineSearchApi.create(getParent());
+                //getting the address of the current lat,lon using reverseGeocoding tomtom api
+                searchApi.reverseGeocoding(new ReverseGeocoderSearchQueryBuilder(location.getLatitude(), location.getLongitude()).build(),
+                        new RevGeoSearchResultListener() {
+                            @Override
+                            public void onSearchResult(ReverseGeocoderSearchResponse reverseGeocoderSearchResponse) {
+                                Address a = reverseGeocoderSearchResponse.getAddresses().get(0).getAddress();
+                                String address = a.getMunicipality() + " " + a.getCountrySubdivision() + ", " + a.getCountryCode();
+                                setTitle(address);
+                            }
 
-                            Address a = reverseGeocoderSearchResponse.getAddresses().get(0).getAddress();
-                            String address = a.getMunicipality() + " " + a.getCountrySubdivision() + ", " + a.getCountryCode();
-                            setTitle(address);
-                        }
-                        @Override
-                        public void onSearchError(SearchError searchError) {
-                            //TODO
-                        }
-                    });
+                            @Override
+                            public void onSearchError(SearchError searchError) {
+                                //no need to do anything address already set to tripky from initiation
+                            }
+                        });
+            } else {
+                //if we couldn't get the current location for any reason (note that the permission is absolutely granted)
+                pred = new Prediction("Tripky", 0, 0);
+            }
         }
 
 
-
         try {
+            //launch the async task and store the result
             listWeather = new GetWeatherTask(this, ",hourly").execute(String.valueOf(pred.getLat()), String.valueOf(pred.getLon()), null).get();
+            //get the first (current) object and remove it from the list to pass the list to the listView adapter
             today = listWeather.get(0);
             listWeather.remove(0);
         } catch (ExecutionException e) {
@@ -95,17 +113,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        tempTextView = (TextView) findViewById(R.id.widgetTemperature);
-        cityTextView = (TextView) findViewById(R.id.widgetCity);
-        descTextView = (TextView) findViewById(R.id.widgetDescription);
-        humiTextView = (TextView) findViewById(R.id.widgetHumidity);
-        presTextView = (TextView) findViewById(R.id.widgetPressure);
-        windTextView = (TextView) findViewById(R.id.widgetWind);
-        iconImageView = (ImageView) findViewById(R.id.widgetIcon);
-        precipTextView = (TextView) findViewById(R.id.widgetPrecip);
-        sRiseTextView = (TextView) findViewById(R.id.widgetSunrise);
-        sSetTextView = (TextView) findViewById(R.id.widgetSunset);
 
+        //setting the views content
         tempTextView.setText(today.getTemperature() + " \u2103");
         descTextView.setText(today.getDescription().toUpperCase());
         humiTextView.setText(getString(R.string.humidity) + " " + today.getHumidity() + " %");
@@ -115,23 +124,26 @@ public class MainActivity extends AppCompatActivity {
         sRiseTextView.setText(getString(R.string.sunrise) + " " + today.getSunrise());
         sSetTextView.setText(getString(R.string.sunset) + " " + today.getSunset());
         try {
-            iconImageView.setImageBitmap(getBitmapFromAssets(today.getIcon()));
+            iconImageView.setImageBitmap(new AssetsHelper(this).getBitmapFromAssets(today.getIcon()));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-
-        weatherAdapter = new ListWeatherAdapter(listWeather, this);
+        //retrieving the recyclerView (the weather forecast list) and some config
+        recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+
+        //instantiating the adapter and setting it to the recyclerView
+        weatherAdapter = new ListWeatherAdapter(listWeather, this);
         recyclerView.setAdapter(weatherAdapter);
 
     }
 
 
+    //inflating the menu to the activity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
@@ -139,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        //menu buttons tasks
         switch (item.getItemId()) {
             case R.id.change_city:
                 startActivity(new Intent(MainActivity.this, ChangeCityActivity.class));
@@ -157,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*in the weather object icon is a string with the name of the icon
+    //here is a function to retrieve the icon from the app assets
     public Bitmap getBitmapFromAssets(String fileName) throws IOException {
         AssetManager assetManager = getAssets();
 
@@ -165,5 +180,22 @@ public class MainActivity extends AppCompatActivity {
         istr.close();
 
         return bitmap;
+    }*/
+
+
+    //get the current location and assign it to the parameter location
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location l) {
+                        // GPS location can be null if GPS is switched off
+                        if (l != null) {
+                            location = l;
+                        }
+                    }
+                });
     }
 }

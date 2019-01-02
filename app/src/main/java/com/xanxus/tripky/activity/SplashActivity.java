@@ -2,7 +2,6 @@ package com.xanxus.tripky.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -35,7 +33,7 @@ public class SplashActivity extends AppCompatActivity {
                 mActivity,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED){
 
-            // Do something, when permissions not granted
+            //do something, when permissions not granted
             if(ActivityCompat.shouldShowRequestPermissionRationale(
                     mActivity,Manifest.permission.ACCESS_FINE_LOCATION)
                     || ActivityCompat.shouldShowRequestPermissionRationale(
@@ -44,34 +42,31 @@ public class SplashActivity extends AppCompatActivity {
                     mActivity,Manifest.permission.READ_EXTERNAL_STORAGE)
                     || ActivityCompat.shouldShowRequestPermissionRationale(
                     mActivity,Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                // If we should give explanation of requested permissions
+                //if we should give explanation of requested permissions
 
-                // Show an alert dialog here with request explanation
+                //show an alert dialog here with request explanation
                 AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 builder.setMessage("Position, Read and Write External" +
                         " Storage permissions are required to do the task.");
                 builder.setTitle("Please grant those permissions");
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCompat.requestPermissions(
-                                mActivity,
-                                new String[]{
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                                },
-                                MY_PERMISSIONS_REQUEST_CODE
-                        );
-                        checkPermission();
-                    }
+                builder.setPositiveButton("OK", (dialogInterface, i) -> {
+                    ActivityCompat.requestPermissions(
+                            mActivity,
+                            new String[]{
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            },
+                            MY_PERMISSIONS_REQUEST_CODE
+                    );
+                    checkPermission();
                 });
                 builder.setNeutralButton("Cancel",null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
             }else{
-                // Directly request for required permissions, without explanation
+                //directly request for required permissions, without explanation
                 ActivityCompat.requestPermissions(
                         mActivity,
                         new String[]{
@@ -85,7 +80,7 @@ public class SplashActivity extends AppCompatActivity {
                 checkPermission();
             }
         }else {
-            // Do something, when permissions are already granted
+            //go to mainActivity when permissions are already granted
             launchMainActivity();
         }
     }
@@ -94,7 +89,6 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
-
     }
 
 }
