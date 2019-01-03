@@ -2,6 +2,7 @@ package com.xanxus.tripky.asyncTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.model.Weather;
@@ -73,6 +74,7 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                         d = data.getJSONObject(i);
                         if (Math.abs(d.get("time").toString().compareTo(strings[2])) <= 1800) break;
                     }
+                    Log.e("dddd", d.toString() );
                     todayWeather.setDescription(d.getString("summary"));
                     todayWeather.setDate(Long.parseLong(strings[2]) * 1000);
                     todayWeather.setIcon(d.getString("icon"));
@@ -80,10 +82,12 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                     todayWeather.setHumidity(String.valueOf(d.getDouble("humidity")*100));
                     todayWeather.setPressure(String.valueOf(d.getDouble("pressure")));
                     todayWeather.setWind(String.valueOf(d.getDouble("windSpeed")));
-                    if (d.has("precipType")) {
+                    if (d.has("precipType") && d.has("precipProbability")) {
                         todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% " + d.getString("precipType"));
-                    } else {
+                    } else if (!d.has("precipType") && d.has("precipProbability")) {
                         todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% ");
+                    } else {
+                        todayWeather.setPrecipitations("no precipitations");
                     }
                     listWeather.add(todayWeather);
                 } catch (JSONException e) {
@@ -105,10 +109,12 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                         todayWeather.setHumidity(String.valueOf(d.getDouble("humidity")*100));
                         todayWeather.setPressure(String.valueOf(d.getDouble("pressure")));
                         todayWeather.setWind(String.valueOf(d.getDouble("windSpeed")));
-                        if (d.has("precipType")) {
+                        if (d.has("precipType") && d.has("precipProbability")) {
                             todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% " + d.getString("precipType"));
-                        } else {
+                        } else if (!d.has("precipType") && d.has("precipProbability")) {
                             todayWeather.setPrecipitations(String.valueOf(d.getDouble("precipProbability") * 100) + "% ");
+                        } else {
+                            todayWeather.setPrecipitations("no precipitations");
                         }
                         todayWeather.setSunrise(d.getLong("sunriseTime")*1000);
                         todayWeather.setSunset(d.getLong("sunsetTime")*1000);

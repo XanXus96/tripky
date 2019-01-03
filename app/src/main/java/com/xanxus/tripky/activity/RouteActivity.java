@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Button;
 
 import com.tomtom.online.sdk.common.location.LatLng;
@@ -47,7 +48,6 @@ public class RouteActivity extends AppCompatActivity implements OnMapReadyCallba
         put("TAXI", TravelMode.TAXI);
         put("VAN", TravelMode.VAN);
         put("TRUCK", TravelMode.TRUCK);
-        put("OTHER", TravelMode.OTHER);
     }};
 
     @Override
@@ -127,7 +127,7 @@ public class RouteActivity extends AppCompatActivity implements OnMapReadyCallba
                         //center the camera to the depart location
                         map.centerOn(CameraPosition.builder(dep).zoom(9).build());
                         //get the arrival time resulting from the api
-                        arrivalAt = fullRoute.getSummary().getArrivalTime().getTime();
+                        arrivalAt = fullRoute.getSummary().getArrivalTime() == null? departAt : fullRoute.getSummary().getArrivalTime().getTime();
                     }
                 });
     }

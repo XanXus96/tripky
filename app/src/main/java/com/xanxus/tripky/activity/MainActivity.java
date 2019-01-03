@@ -1,22 +1,22 @@
 package com.xanxus.tripky.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.tomtom.online.sdk.search.OnlineSearchApi;
 import com.tomtom.online.sdk.search.SearchApi;
 import com.tomtom.online.sdk.search.api.SearchError;
@@ -74,11 +74,14 @@ public class MainActivity extends AppCompatActivity {
             pred = (Prediction) getIntent().getExtras().getSerializable("pred");
             setTitle(pred.getMcc());
         }else{
+            //getting the current location
+            LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             //if we get the current location
             if (location != null) {
                 pred = new Prediction("Tripky", location.getLongitude(), location.getLatitude());
 
-                SearchApi searchApi = OnlineSearchApi.create(getParent());
+                SearchApi searchApi = OnlineSearchApi.create(this);
                 //getting the address of the current lat,lon using reverseGeocoding tomtom api
                 searchApi.reverseGeocoding(new ReverseGeocoderSearchQueryBuilder(location.getLatitude(), location.getLongitude()).build(),
                         new RevGeoSearchResultListener() {
@@ -96,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
                         });
             } else {
                 //if we couldn't get the current location for any reason (note that the permission is absolutely granted)
-                pred = new Prediction("Tripky", 0, 0);
+                pred = new Prediction("London, UK", 51.50853, -0.12574);
+                setTitle(pred.getAddress());
             }
         }
 
@@ -168,34 +172,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    /*in the weather object icon is a string with the name of the icon
-    //here is a function to retrieve the icon from the app assets
-    public Bitmap getBitmapFromAssets(String fileName) throws IOException {
-        AssetManager assetManager = getAssets();
-
-        InputStream istr = assetManager.open(fileName+".png");
-        Bitmap bitmap = BitmapFactory.decodeStream(istr);
-        istr.close();
-
-        return bitmap;
-    }*/
-
-
-    //get the current location and assign it to the parameter location
-    @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
-        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location l) {
-                        // GPS location can be null if GPS is switched off
-                        if (l != null) {
-                            location = l;
-                        }
-                    }
-                });
     }
 }

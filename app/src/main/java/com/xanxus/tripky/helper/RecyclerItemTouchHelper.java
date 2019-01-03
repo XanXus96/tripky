@@ -12,13 +12,9 @@ import android.view.View;
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.adapter.ListTripAdapter;
 
-import org.json.JSONException;
 
 import java.io.IOException;
 
-/**
- * Created by ravi on 29/09/17.
- */
 
 public class RecyclerItemTouchHelper extends ItemTouchHelper.SimpleCallback {
 

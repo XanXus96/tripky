@@ -9,7 +9,6 @@
         <item>TAXI</item>
         <item>VAN</item>
         <item>TRUCK</item>
-        <item>OTHER</item>
     </string-array>
 
     <string-array name="hours">
