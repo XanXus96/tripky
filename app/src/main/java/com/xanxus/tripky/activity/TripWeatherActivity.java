@@ -11,8 +11,8 @@ import android.widget.Toast;
 
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.asyncTask.GetWeatherTask;
-import com.xanxus.tripky.asyncTask.SetTripWeatherTask;
-import com.xanxus.tripky.helper.AssetsHelper;
+import com.xanxus.tripky.asyncTask.SetMyTripsTask;
+import com.xanxus.tripky.helper.AppHelper;
 import com.xanxus.tripky.model.Prediction;
 import com.xanxus.tripky.model.Weather;
 
@@ -100,7 +100,7 @@ public class TripWeatherActivity extends AppCompatActivity {
 
 
         SimpleDateFormat f = new SimpleDateFormat("EEE d MMM yyyy HH:mm");
-        AssetsHelper ah = new AssetsHelper(this);
+        AppHelper ah = new AppHelper(this);
 
         //setting the views content
         widgetCity.setText(depWeather.getCity());
@@ -145,7 +145,7 @@ public class TripWeatherActivity extends AppCompatActivity {
             case R.id.save:
                 try {
                     //call the async task to save the data locally
-                    new SetTripWeatherTask(this, new ArrayList<Weather>() {{
+                    new SetMyTripsTask(this, new ArrayList<Weather>() {{
                         add(depWeather);
                         add(arrWeather);
                     }}).execute();

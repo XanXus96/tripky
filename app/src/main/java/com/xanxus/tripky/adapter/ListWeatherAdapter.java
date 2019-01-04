@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xanxus.tripky.R;
-import com.xanxus.tripky.helper.AssetsHelper;
+import com.xanxus.tripky.helper.AppHelper;
 import com.xanxus.tripky.model.Weather;
 
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class ListWeatherAdapter extends RecyclerView.Adapter<ListWeatherAdapter.
         SimpleDateFormat f = new SimpleDateFormat("EEE d MMM yyyy");
         holder.dateTextView.setText(f.format(weather.getDate()));
         try {
-            holder.iconImageView.setImageBitmap(new AssetsHelper(context).getBitmapFromAssets(weather.getIcon()));
+            holder.iconImageView.setImageBitmap(new AppHelper(context).getBitmapFromAssets(weather.getIcon()));
         } catch (IOException e) {
             e.printStackTrace();
         }

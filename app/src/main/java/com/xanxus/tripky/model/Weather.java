@@ -75,6 +75,14 @@ public class Weather {
         return this.sunrise;
     }
 
+    public void setSunrise(String sunrise) {
+        this.sunrise = sunrise;
+    }
+
+    public void setSunset(String sunset) {
+        this.sunset = sunset;
+    }
+
     public void setSunrise(Long sunrise) {
         SimpleDateFormat f = new SimpleDateFormat("HH:mm");
         this.sunrise = f.format(new Date(sunrise));

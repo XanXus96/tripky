@@ -10,6 +10,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
+import com.xanxus.tripky.asyncTask.CheckInternetTask;
+
+import java.io.File;
+import java.util.concurrent.ExecutionException;
+
 public class SplashActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_CODE = 123;
@@ -24,6 +29,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         if(ContextCompat.checkSelfPermission(mActivity,Manifest.permission.ACCESS_FINE_LOCATION)
                 + ContextCompat.checkSelfPermission(
                 mActivity,Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -45,7 +51,6 @@ public class SplashActivity extends AppCompatActivity {
                 //if we should give explanation of requested permissions
 
                 //show an alert dialog here with request explanation
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 builder.setMessage("Position, Read and Write External" +
                         " Storage permissions are required to do the task.");
                 builder.setTitle("Please grant those permissions");
@@ -80,8 +85,35 @@ public class SplashActivity extends AppCompatActivity {
                 checkPermission();
             }
         }else {
-            //go to mainActivity when permissions are already granted
-            launchMainActivity();
+            File f = getFileStreamPath("weather.json");
+            if (f.exists()) {
+                //go to mainActivity when permissions are already granted
+                launchMainActivity();
+            } else {
+                try {
+                    if (new CheckInternetTask(this).execute().get()) {
+                        launchMainActivity();
+                    } else {
+                        builder.setMessage("No internet please try to check your internet data");
+                        builder.setTitle("Internet issue");
+                        builder.setPositiveButton("retry", (dialogInterface, i) -> {
+                            checkPermission();
+                        });
+                        builder.setNeutralButton("quit", (dialogInterface, i) -> {
+                            moveTaskToBack(true);
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                            System.exit(1);
+                        });
+                        builder.setCancelable(false);
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                } catch (ExecutionException e) {
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

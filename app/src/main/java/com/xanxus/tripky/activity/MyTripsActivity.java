@@ -10,17 +10,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.adapter.ListTripAdapter;
+import com.xanxus.tripky.helper.AppHelper;
 import com.xanxus.tripky.helper.RecyclerItemTouchHelper;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MyTripsActivity extends AppCompatActivity {
@@ -34,40 +28,8 @@ public class MyTripsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_trips);
         setTitle("My Trips");
 
-        jsonItems = new ArrayList<JSONObject>();
         //retrieve the saved trips from the local storage
-        try {
-            FileInputStream fis = openFileInput("trips.json");
-            if (fis == null) return;
-            InputStream stream = new BufferedInputStream(fis);
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder builder = new StringBuilder();
-            String inputString;
-            while ((inputString = bufferedReader.readLine()) != null) {
-                builder.append(inputString);
-            }
-            StringBuilder json = new StringBuilder();
-            int BracketCount = 0;
-            for (char c: builder.toString().toCharArray())
-            {
-                if (c == '{')
-                    ++BracketCount;
-                else if (c == '}')
-                    --BracketCount;
-                json.append(c);
-
-                if (BracketCount == 0 && c != ' ')
-                {
-                    jsonItems.add(new JSONObject(json.toString()));
-                    json = new StringBuilder();
-
-                }
-            }
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        jsonItems = new AppHelper(this).getObjectsFromFile("trips.json", true);
 
         //retrieving the recyclerView (the weather forecast list) and some config
         recyclerView = findViewById(R.id.recycler_view2);

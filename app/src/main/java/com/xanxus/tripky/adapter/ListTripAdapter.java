@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.xanxus.tripky.R;
-import com.xanxus.tripky.helper.AssetsHelper;
+import com.xanxus.tripky.helper.AppHelper;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -103,7 +103,7 @@ public class ListTripAdapter extends RecyclerView.Adapter<ListTripAdapter.MyView
         JSONObject trip = tripList.get(position);
         JSONObject depart, arrival;
         SimpleDateFormat f = new SimpleDateFormat("EEE d MMM yyyy HH:mm");
-        AssetsHelper ah = new AssetsHelper(context);
+        AppHelper ah = new AppHelper(context);
         try {
             depart = trip.getJSONObject("depart");
             arrival = trip.getJSONObject("arrival");

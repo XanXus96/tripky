@@ -11,7 +11,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -26,10 +25,14 @@ import com.tomtom.online.sdk.search.data.reversegeocoder.ReverseGeocoderSearchQu
 import com.tomtom.online.sdk.search.data.reversegeocoder.ReverseGeocoderSearchResponse;
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.adapter.ListWeatherAdapter;
+import com.xanxus.tripky.asyncTask.CheckInternetTask;
 import com.xanxus.tripky.asyncTask.GetWeatherTask;
-import com.xanxus.tripky.helper.AssetsHelper;
+import com.xanxus.tripky.helper.AppHelper;
 import com.xanxus.tripky.model.Prediction;
 import com.xanxus.tripky.model.Weather;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public Location location;
     private Prediction pred;
 
+    private AppHelper helper;
+
     //this activity cannot be reached if you didn't grant the permissions first although some functions in need of
     //permission require this annotation
     @SuppressLint("MissingPermission")
@@ -57,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        helper = new AppHelper(this);
 
         //retrieving the views
         tempTextView = findViewById(R.id.widgetTemperature);
@@ -100,20 +107,25 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 //if we couldn't get the current location for any reason (note that the permission is absolutely granted)
                 pred = new Prediction("London, UK", 51.50853, -0.12574);
+                pred.setMcc("noLocation");
                 setTitle(pred.getAddress());
             }
         }
 
 
         try {
-            //launch the async task and store the result
-            listWeather = new GetWeatherTask(this, ",hourly").execute(String.valueOf(pred.getLat()), String.valueOf(pred.getLon()), null).get();
+            if (new CheckInternetTask(this).execute().get() && !pred.getMcc().equals("noLocation")) {
+                //launch the async task and store the result
+                listWeather = new GetWeatherTask(this, ",hourly").execute(String.valueOf(pred.getLat()), String.valueOf(pred.getLon()), null).get();
+            } else {
+                //if there is no internet get the data stored from the latest usage
+                listWeather = jsonToWeather(helper.getObjectsFromFile("weather.json", false));
+                setTitle(listWeather.get(0).getCity());
+            }
             //get the first (current) object and remove it from the list to pass the list to the listView adapter
             today = listWeather.get(0);
             listWeather.remove(0);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -128,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         sRiseTextView.setText(getString(R.string.sunrise) + " " + today.getSunrise());
         sSetTextView.setText(getString(R.string.sunset) + " " + today.getSunset());
         try {
-            iconImageView.setImageBitmap(new AssetsHelper(this).getBitmapFromAssets(today.getIcon()));
+            iconImageView.setImageBitmap(helper.getBitmapFromAssets(today.getIcon()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -172,5 +184,38 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private ArrayList<Weather> jsonToWeather(ArrayList<JSONObject> jsonList) {
+        ArrayList<Weather> weatherList = new ArrayList<>();
+        JSONObject jo = jsonList.get(0);
+
+        for (int i = 0; i < 7; i++) {
+            JSONObject j = null;
+            try {
+                j = jo.getJSONObject("weather" + i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Weather w = new Weather();
+            try {
+                w.setCity(j.getString("city"));
+                w.setDescription(j.getString("description"));
+                w.setTemperature(j.getString("temperature"));
+                w.setIcon(j.getString("icon"));
+                w.setHumidity(j.getString("humidity"));
+                w.setPressure(j.getString("pressure"));
+                w.setWind(j.getString("wind"));
+                w.setPrecipitations(j.getString("precips"));
+                w.setDate(j.getLong("date"));
+                w.setSunrise(j.getString("sunrise"));
+                w.setSunset(j.getString("sunset"));
+
+                weatherList.add(w);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return weatherList;
     }
 }

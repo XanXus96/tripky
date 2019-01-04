@@ -19,13 +19,13 @@ import java.util.List;
 import static android.content.Context.MODE_APPEND;
 import static android.content.Context.MODE_PRIVATE;
 
-public class SetTripWeatherTask extends AsyncTask<String, Void, String> {
+public class SetMyTripsTask extends AsyncTask<String, Void, String> {
 
     private FileOutputStream out;
     private List<Weather> weathers;
     private Context context;
 
-    public SetTripWeatherTask (Context context, List<Weather> weathers) throws FileNotFoundException {
+    public SetMyTripsTask(Context context, List<Weather> weathers) throws FileNotFoundException {
         super();
         this.context = context;
         this.out = context.openFileOutput("trips.json",MODE_PRIVATE | MODE_APPEND);

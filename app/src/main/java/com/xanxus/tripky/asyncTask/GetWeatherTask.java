@@ -2,7 +2,6 @@ package com.xanxus.tripky.asyncTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.xanxus.tripky.R;
 import com.xanxus.tripky.model.Weather;
@@ -13,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,10 +34,12 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
     private static String DARK_SKY_API_KEY;
 
     private String excludes;
-
+    private Context context;
+    private boolean daily;
 
     public GetWeatherTask(Context context, String excludes) {
 
+        this.context = context;
         DARK_SKY_API_KEY = context.getString(R.string.dark_sky_key);
         this.excludes = excludes;
     }
@@ -65,6 +67,7 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                 builder.append(inputString);
             }
             if (strings[2] != null) {
+                daily = false;
                 try {
                     JSONObject reader = new JSONObject(builder.toString());
                     JSONObject hourly = reader.getJSONObject("hourly");
@@ -74,7 +77,6 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                         d = data.getJSONObject(i);
                         if (Math.abs(d.get("time").toString().compareTo(strings[2])) <= 1800) break;
                     }
-                    Log.e("dddd", d.toString() );
                     todayWeather.setDescription(d.getString("summary"));
                     todayWeather.setDate(Long.parseLong(strings[2]) * 1000);
                     todayWeather.setIcon(d.getString("icon"));
@@ -94,6 +96,7 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
                     e.printStackTrace();
                 }
             }else{
+                daily = true;
                 try {
                     JSONObject reader = new JSONObject(builder.toString());
                     JSONObject daily = reader.getJSONObject("daily");
@@ -135,6 +138,13 @@ public class GetWeatherTask extends AsyncTask<String, Void, ArrayList<Weather>> 
     }
 
     @Override
-    protected void onPostExecute(ArrayList<Weather> temp) {
+    protected void onPostExecute(ArrayList<Weather> list) {
+        if (daily) {
+            try {
+                new SetStoredWeatherTask(context, list).execute();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
