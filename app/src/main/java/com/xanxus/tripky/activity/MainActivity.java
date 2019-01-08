@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             //if we get the current location
             if (location != null) {
                 pred = new Prediction("Tripky", location.getLongitude(), location.getLatitude());
-
+                pred.setMcc("Tripky");
                 SearchApi searchApi = OnlineSearchApi.create(this);
                 //getting the address of the current lat,lon using reverseGeocoding tomtom api
                 searchApi.reverseGeocoding(new ReverseGeocoderSearchQueryBuilder(location.getLatitude(), location.getLongitude()).build(),
@@ -114,7 +114,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            if (new CheckInternetTask(this).execute().get() && !pred.getMcc().equals("noLocation")) {
+
+            if (new CheckInternetTask(this).execute().get() && (!pred.getMcc().equals("noLocation") || !getFileStreamPath("weather.json").exists())) {
                 //launch the async task and store the result
                 listWeather = new GetWeatherTask(this, ",hourly").execute(String.valueOf(pred.getLat()), String.valueOf(pred.getLon()), null).get();
             } else {
