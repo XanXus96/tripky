@@ -1,6 +1,6 @@
 # Tripky
 
-Tripky is an android app that lets its user get :
+Tripky is an android app with the following features :
 
  - the current and 7-days weather forecast of any place in the world
  - a planned trip weather (a trip from A to B with a depart time and a transport type to calculate the estimated arrival time)
